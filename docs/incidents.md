@@ -22,3 +22,17 @@ For every implemented incident define:
 - regression-test tolerance.
 
 The data must contain ambiguity and competing signals, but the planted root cause must remain statistically discoverable.
+
+## Implemented windows (PR #2)
+
+| ID | Window | Scope | Injected driver |
+|---|---|---|---|
+| INC-A | 2026-03-15–2026-04-12 | Supplier B / Power Module | supplier-component failure probability |
+| INC-B | 2026-04-15–2026-05-05 | Mexico / Line 2 | line-local test risk and Voltage Failure distribution |
+| INC-C | 2026-02-01–2026-05-31 | Malaysia / Ramp Line | decaying line risk and early rework propensity |
+| INC-D | 2026-05-10–2026-05-16 | Taiwan / X200 / Supplier C memory | `CLOT-BAD-001` failure probability |
+| INC-E | 2026-06-01–2026-06-30 | Mexico | X100-to-X200 production mix weights |
+
+Exact settings and expected conclusions are emitted to `ground_truth/incidents.json`. Governed
+analytics must never join to or read this manifest; it exists only for regression and future RCA
+evaluation.

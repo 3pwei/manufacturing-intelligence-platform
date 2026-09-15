@@ -1,0 +1,4 @@
+factory_id,factory_code,factory_name,country,baseline_fpy
+FAC-TW,TW01,Taiwan Factory,Taiwan,0.98
+FAC-MX,MX01,Mexico Factory,Mexico,0.965
+FAC-MY,MY01,Malaysia Factory,Malaysia,0.97

@@ -1,0 +1,7 @@
+component_id,component_code,component_name,component_family
+COMP-PWR,PWR,Power Module,Power
+COMP-MAIN,MAIN,Main Board,Compute
+COMP-MEM,MEM,Memory Module,Memory
+COMP-NET,NET,Network Module,Network
+COMP-COOL,COOL,Cooling Module,Thermal
+COMP-STOR,STOR,Storage Module,Storage

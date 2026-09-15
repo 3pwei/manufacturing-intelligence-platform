@@ -1,0 +1,7 @@
+defect_id,defect_code,defect_name,defect_category,severity
+DEF-VOLT,VOLT,Voltage Failure,Electrical,High
+DEF-FUNC,FUNC,Functional Test Failure,Functional,High
+DEF-THERM,THERM,Thermal Failure,Thermal,High
+DEF-MEM,MEM,Memory Test Failure,Electrical,Medium
+DEF-ASSY,ASSY,Assembly Defect,Assembly,Medium
+DEF-CONN,CONN,Connector Defect,Assembly,Medium

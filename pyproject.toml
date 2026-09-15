@@ -7,7 +7,10 @@ name = "manufacturing-intelligence-platform"
 version = "0.1.0"
 description = "AI-enabled manufacturing analytics portfolio project"
 requires-python = ">=3.12"
-dependencies = []
+dependencies = [
+  "pyarrow>=18,<23",
+  "PyYAML>=6,<7",
+]
 
 [project.optional-dependencies]
 dev = [

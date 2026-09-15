@@ -1,0 +1,7 @@
+line_id,line_code,line_name,factory_id,is_ramp_line
+LINE-TW-01,TW-L1,Taiwan Line 1,FAC-TW,False
+LINE-TW-02,TW-L2,Taiwan Line 2,FAC-TW,False
+LINE-MX-01,MX-L1,Mexico Line 1,FAC-MX,False
+LINE-MX-02,MX-L2,Mexico Line 2,FAC-MX,False
+LINE-MY-01,MY-L1,Malaysia Line 1,FAC-MY,False
+LINE-MY-03,MY-L3,Malaysia Ramp Line,FAC-MY,True

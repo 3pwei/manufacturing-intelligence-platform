@@ -1,0 +1,6 @@
+product_id,product_code,product_name,product_family,complexity_risk
+PROD-X100,X100,AI Server X100,AI Server,0.0
+PROD-X200,X200,AI Server X200,AI Server,0.014
+PROD-C100,C100,Compute Board C100,Board,0.004
+PROD-N100,N100,Network Board N100,Board,0.007
+PROD-S100,S100,Storage Node S100,Storage,0.009
