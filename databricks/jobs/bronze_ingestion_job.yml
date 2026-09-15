@@ -1,0 +1,20 @@
+resources:
+  jobs:
+    bronze_ingestion:
+      name: manufacturing-intelligence-bronze-ingestion
+      tasks:
+        - task_key: ingest_bronze
+          spark_python_task:
+            python_file: ../jobs/run_bronze_ingestion.py
+            parameters:
+              - --source-path
+              - s3://manufacturing-intelligence-3pwei/source/synthetic/
+              - --catalog
+              - manufacturing_intelligence
+          environment_key: serverless
+      environments:
+        - environment_key: serverless
+          spec:
+            client: "1"
+            dependencies:
+              - ../../

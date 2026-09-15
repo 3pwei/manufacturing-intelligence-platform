@@ -75,9 +75,21 @@ component lots, and product mix. It does not set dashboard KPIs directly.
 
 See `docs/synthetic-data-generation.md` for design and limitations.
 
+## Databricks Bronze ingestion
+
+PR #3 adds an idempotent, serverless Databricks ingestion path from the read-only Unity Catalog
+S3 external location into nine source-shaped Bronze Delta tables. Declarative schema and data-
+quality contracts route accepted records to `manufacturing_intelligence.bronze` and rejected
+records, with their source payload and errors, to `manufacturing_intelligence.quarantine`.
+
+No cloud credentials are stored in the repository and no business metrics are calculated in
+Bronze. See `docs/databricks-bronze-ingestion.md` for setup, job execution, validation SQL, and
+limitations.
+
 ## Project status
 
 PR #1 establishes the foundation and contracts. PR #2 implements the deterministic synthetic
-manufacturing environment used by subsequent ingestion and analytics work.
+manufacturing environment. PR #3 adds the Databricks Bronze, data-quality, quarantine, and
+file-level idempotency foundation.
 
 See `docs/` for the design contracts that future implementation PRs must follow.
