@@ -1,0 +1,16 @@
+resources:
+  jobs:
+    silver_gold_transform:
+      name: manufacturing-intelligence-silver-gold
+      tasks:
+        - task_key: build_silver_gold
+          spark_python_task:
+            python_file: ../jobs/run_silver_gold.py
+          environment_key: serverless
+      environments:
+        - environment_key: serverless
+          spec:
+            client: "1"
+            dependencies:
+              - ../../
+

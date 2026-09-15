@@ -86,10 +86,20 @@ No cloud credentials are stored in the repository and no business metrics are ca
 Bronze. See `docs/databricks-bronze-ingestion.md` for setup, job execution, validation SQL, and
 limitations.
 
+## Silver and Gold analytics
+
+PR #4 publishes nine conformed Silver Delta tables and five Gold analytics tables. Silver retains
+the two fact grains while normalizing, deduplicating, and enforcing relationships. Gold owns the
+governed additive measures and rates used by Tableau, including product-mix share and weekly FPY
+change. Tableau must connect to `manufacturing_intelligence.gold`, not Bronze.
+
+Run `databricks/jobs/run_silver_gold.py` after a successful Bronze load. See
+`docs/silver-gold-model.md` for model purposes, metric ownership, validation, and limitations.
+
 ## Project status
 
 PR #1 establishes the foundation and contracts. PR #2 implements the deterministic synthetic
 manufacturing environment. PR #3 adds the Databricks Bronze, data-quality, quarantine, and
-file-level idempotency foundation.
+file-level idempotency foundation. PR #4 adds conformed Silver and governed Gold analytics.
 
 See `docs/` for the design contracts that future implementation PRs must follow.
