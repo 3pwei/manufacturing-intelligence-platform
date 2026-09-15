@@ -1,0 +1,10 @@
+bundle:
+  name: manufacturing-intelligence-platform
+
+include:
+  - databricks/jobs/*.yml
+
+targets:
+  dev:
+    mode: development
+    default: true
