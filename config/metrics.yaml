@@ -1,0 +1,32 @@
+version: 1
+metrics:
+  fpy:
+    label: First Pass Yield
+    numerator: first_pass_pass_qty
+    denominator: first_pass_pass_qty + fail_qty
+    format: percentage
+    canonical: true
+  defect_rate:
+    label: Defect Rate
+    numerator: defective_units
+    denominator: inspected_units
+    format: percentage
+    canonical: true
+  dppm:
+    label: Defects Per Million
+    numerator: defective_units
+    denominator: inspected_units
+    multiplier: 1000000
+    canonical: true
+  rework_rate:
+    label: Rework Rate
+    numerator: rework_qty
+    denominator: completed_qty
+    format: percentage
+    canonical: true
+  scrap_rate:
+    label: Scrap Rate
+    numerator: scrap_qty
+    denominator: completed_qty
+    format: percentage
+    canonical: true
