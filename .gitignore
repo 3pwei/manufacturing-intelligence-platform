@@ -23,3 +23,4 @@ data/processed/
 
 # Databricks / notebook local state
 .databricks/
+data/generated/

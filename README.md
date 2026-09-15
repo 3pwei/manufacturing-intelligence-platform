@@ -59,8 +59,25 @@ Business Requirements → Data Contract → Lakehouse → Advanced SQL → Table
 
 All data in this repository is synthetic. No NVIDIA or other proprietary company data is used.
 
+## Synthetic data quick start
+
+```bash
+python -m pip install -e '.[dev]'
+python scripts/generate_data.py --seed 42 --scale demo --output data/generated
+```
+
+The command writes CSV and Parquet tables plus a machine-readable incident manifest. The full
+generated directory is ignored; a compact CSV fixture is available under `data/sample/`.
+
+The generator models stable factory/product differences and injects five discoverable hidden
+causes into failure probability, supplier/component attribution, process risk, rework behavior,
+component lots, and product mix. It does not set dashboard KPIs directly.
+
+See `docs/synthetic-data-generation.md` for design and limitations.
+
 ## Project status
 
-PR #1 establishes the product foundation, architecture, business metric contracts, synthetic incident specification, Tableau plan, AI boundary, and data-quality expectations.
+PR #1 establishes the foundation and contracts. PR #2 implements the deterministic synthetic
+manufacturing environment used by subsequent ingestion and analytics work.
 
 See `docs/` for the design contracts that future implementation PRs must follow.

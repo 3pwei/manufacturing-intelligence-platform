@@ -1,0 +1,9 @@
+supplier_id,supplier_code,supplier_name,supplier_region
+SUP-A,A,Supplier A,APAC
+SUP-B,B,Supplier B,APAC
+SUP-C,C,Supplier C,Americas
+SUP-D,D,Supplier D,EMEA
+SUP-E,E,Supplier E,APAC
+SUP-F,F,Supplier F,Americas
+SUP-G,G,Supplier G,EMEA
+SUP-H,H,Supplier H,APAC

@@ -1,14 +1,25 @@
 version: 1
 seed: 20260915
+start_date: 2026-01-01
+end_date: 2026-06-30
+output_path: data/generated
+scale: demo
 scenario:
   name: manufacturing_quality_mvp
   timezone: Asia/Taipei
-  horizon_days: 180
-scale:
-  factories: 3
-  products: 4
-  suppliers: 8
-  target_production_rows: 100000
+scales:
+  test:
+    lots_per_line_day: 1
+    lot_quantity_min: 35
+    lot_quantity_max: 55
+  demo:
+    lots_per_line_day: 2
+    lot_quantity_min: 80
+    lot_quantity_max: 140
+  full:
+    lots_per_line_day: 8
+    lot_quantity_min: 180
+    lot_quantity_max: 320
 incidents:
   enabled:
     - supplier_quality_degradation
@@ -16,5 +27,3 @@ incidents:
     - line_ramp_up
     - bad_component_lot
     - product_mix_shift
-notes:
-  - "Values are planning defaults for PR #2 and may be tuned after performance and signal validation."
