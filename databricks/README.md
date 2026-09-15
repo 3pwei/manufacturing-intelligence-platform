@@ -1,10 +1,8 @@
 # Databricks
 
-Planned Lakehouse layers:
+- `jobs/`: serverless workflow definitions and thin entry points.
+- Bronze core contracts/runtime: `src/manufacturing_analytics/bronze/`.
+- Bootstrap DDL: `sql/ddl/001_bronze_foundation.sql`.
+- Operational guide: `docs/databricks-bronze-ingestion.md`.
 
-- `bronze/`: raw ingestion and ingestion metadata
-- `silver/`: cleaned, validated, conformed entities/events
-- `gold/`: dimensional models, governed metrics, analytical views
-- `jobs/`: orchestration definitions when the pipeline is implemented
-
-PR #1 intentionally contains architecture only; pipeline code begins in later PRs.
+Silver and Gold remain future layers. Bronze contains no business KPI or analytical aggregation.
