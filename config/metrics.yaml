@@ -1,5 +1,22 @@
 version: 1
 metrics:
+  production_quantity:
+    label: Production Quantity
+    expression: completed_qty
+    aggregation: sum
+    canonical: true
+  pass_quantity:
+    label: Pass Quantity
+    expression: first_pass_pass_qty
+    aggregation: sum
+    scope: first_pass
+    canonical: true
+  fail_quantity:
+    label: Fail Quantity
+    expression: fail_qty
+    aggregation: sum
+    scope: first_pass
+    canonical: true
   fpy:
     label: First Pass Yield
     numerator: first_pass_pass_qty
@@ -29,4 +46,21 @@ metrics:
     numerator: scrap_qty
     denominator: completed_qty
     format: percentage
+    canonical: true
+  yield_loss:
+    label: Yield Loss
+    expression: 1 - fpy
+    format: percentage
+    canonical: true
+  wow_fpy_change:
+    label: WoW FPY Change
+    expression: current_week_fpy - previous_week_fpy
+    format: percentage_points
+    canonical: true
+  supplier_attributed_defect_rate:
+    label: Supplier-attributed Defect Rate
+    numerator: supplier_attributed_defective_units
+    denominator: inspected_units_linked_to_supplier
+    format: percentage
+    attribution_caveat: true
     canonical: true

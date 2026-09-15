@@ -37,10 +37,14 @@ timestamp. It is an explicit observability path, not a silent filter. Dimensions
 so basic FK and orphan production-lot validation can run during Bronze ingestion.
 
 ### Silver
-Applies type normalization, deduplication, conformance, validation, and reusable entity relationships.
+Publishes nine conformed Delta tables. It applies deterministic latest-record deduplication,
+normalization, relationship enforcement, and technical date fields while preserving both fact
+grains. It does not contain dashboard aggregation.
 
 ### Gold
-Publishes fact/dimension models, metric-ready aggregates, benchmark views, and root-cause inputs.
+Publishes daily manufacturing, factory, product, supplier, and defect-Pareto analytics. Additive
+numerators and denominators remain available beside governed rates so filters do not average
+percentages. Product-level FPY and product-mix share remain separate to expose mix-driven changes.
 
 ### Tableau
 Provides interactive business exploration. Tableau-specific calculations are permitted when they are visualization- or view-grain-specific; canonical KPI truth remains upstream.

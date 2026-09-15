@@ -50,3 +50,19 @@ An event can reference component, supplier, defect category, test/inspection sta
 - `fact_rma`: one field return event.
 
 They are deliberately excluded from MVP implementation until manufacturing-quality analytics is complete.
+
+## Physical Silver and Gold models
+
+Silver implements conformed copies of all seven dimensions and both facts with the `silver_`
+prefix. `silver_fact_production` keeps one production lot row; `silver_fact_quality_event` keeps one
+quality event row. Gold deliberately changes grain for business consumption:
+
+| Gold table | Grain | Purpose |
+|---|---|---|
+| `gold_manufacturing_daily` | date × factory × line × product | Executive and manufacturing KPI trend |
+| `gold_factory_quality` | date × factory | Factory comparison |
+| `gold_product_quality` | date × factory × product | Product FPY and mix decomposition |
+| `gold_supplier_quality` | date × factory × product × component × supplier | Attributed supplier analysis |
+| `gold_defect_pareto` | date × factory × line × product × component × supplier × defect | Defect RCA and Pareto |
+
+See `silver-gold-model.md` for transformation and metric details.
