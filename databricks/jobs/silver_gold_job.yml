@@ -6,6 +6,9 @@ resources:
         - task_key: build_silver_gold
           spark_python_task:
             python_file: ../jobs/run_silver_gold.py
+            parameters:
+              - --repository-root
+              - ${workspace.file_path}
           environment_key: serverless
       environments:
         - environment_key: serverless
