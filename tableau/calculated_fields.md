@@ -1,37 +1,125 @@
-# Tableau Calculated Fields Plan
+# Tableau Calculated Fields — MVP
 
-Canonical KPI arithmetic should come from governed numerators/denominators where possible. Tableau calculations focus on interactive analysis and presentation grain.
+Gold remains the source of truth. These fields only aggregate governed additive columns at the
+current Tableau filter grain. Create them in the named Tableau data source unless stated otherwise.
 
-Planned fields include:
+## Manufacturing Daily
 
-## FPY
+### Production Quantity
 
 ```tableau
-SUM([First Pass Pass Qty]) /
-(SUM([First Pass Pass Qty]) + SUM([Fail Qty]))
+SUM([production_quantity])
 ```
 
-## Yield Loss
+### FPY
+
+```tableau
+SUM([pass_quantity]) /
+NULLIF(SUM([pass_quantity]) + SUM([fail_quantity]), 0)
+```
+
+If the installed Tableau version does not support `NULLIF`, use:
+
+```tableau
+IF SUM([pass_quantity]) + SUM([fail_quantity]) = 0 THEN NULL
+ELSE SUM([pass_quantity]) /
+     (SUM([pass_quantity]) + SUM([fail_quantity]))
+END
+```
+
+### Defect Rate
+
+```tableau
+SUM([fail_quantity]) / SUM([production_quantity])
+```
+
+### DPPM
+
+```tableau
+SUM([fail_quantity]) * 1000000.0 / SUM([production_quantity])
+```
+
+### Rework Rate
+
+```tableau
+SUM([rework_quantity]) / SUM([production_quantity])
+```
+
+### Scrap Rate
+
+```tableau
+SUM([scrap_quantity]) / SUM([production_quantity])
+```
+
+### Yield Loss
 
 ```tableau
 1 - [FPY]
 ```
 
-## FPY Status
+### WoW FPY Change (percentage points)
 
-Conceptual status using a parameterized target/tolerance:
+Use the governed weekly value and display it only at a week-compatible view grain.
 
 ```tableau
-IF [FPY] >= [FPY Target] THEN "On Target"
-ELSEIF [FPY] >= [FPY Target] - [Warning Tolerance] THEN "Watch"
-ELSE "Action Required"
-END
+AVG([wow_fpy_change])
 ```
 
-## Period labels and deltas
+Format as percentage with one or two decimals and label it **WoW FPY Change (pp)**. Do not sum the
+daily repeated weekly value.
 
-Week-over-week percentage-point deltas, selected-period vs baseline labels, and contribution formatting may use table calculations when view-order semantics are intentional.
+## Product Quality
 
-## Rule
+### Product FPY
 
-If a calculation defines business truth used across tools, move it upstream to the governed SQL/Gold layer and document it in `docs/metrics-definition.md`.
+```tableau
+SUM([pass_quantity]) /
+(SUM([pass_quantity]) + SUM([fail_quantity]))
+```
+
+### Product Mix Share
+
+```tableau
+SUM([production_quantity]) /
+WINDOW_SUM(SUM([production_quantity]))
+```
+
+Set **Compute Using** to Product within each displayed period/factory. The Gold
+`product_mix_share` column is valid at its native daily factory-product grain, but the table
+calculation above is required when dates are rolled up to month or an arbitrary filtered range.
+
+## Supplier Quality
+
+### Supplier-attributed Defect Rate
+
+```tableau
+SUM([defective_units]) / SUM([inspected_units])
+```
+
+Tooltip caveat: inspected units are completed units from distinct production lots with a
+supplier-attributed event; the source has no BOM/allocation fact.
+
+## Defect Pareto
+
+### Defect Contribution
+
+```tableau
+SUM([defect_quantity]) /
+WINDOW_SUM(SUM([defect_quantity]))
+```
+
+### Cumulative Defect Contribution
+
+```tableau
+RUNNING_SUM([Defect Contribution])
+```
+
+Sort Defect descending by `SUM([defect_quantity])` and compute along Defect.
+
+## Formatting rules
+
+- FPY, Defect Rate, Rework Rate, Scrap Rate, Mix Share: percentage.
+- WoW FPY Change: percentage points, not percent change.
+- DPPM and quantities: whole numbers with separators.
+- Null denominators remain null; do not convert them to zero.
+- Do not add FIXED / INCLUDE / EXCLUDE LOD expressions in PR #12. Those belong to PR #13.
