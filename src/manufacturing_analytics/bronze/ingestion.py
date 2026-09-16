@@ -259,9 +259,8 @@ class BronzeIngestion:
             result = result.join(parent, condition, "left")
             nullable_value = f.lit(False)
             if foreign_key.nullable:
-                nullable_value = f.greatest(
-                    *[result[column].isNull() for column in foreign_key.columns]
-                )
+                for column in foreign_key.columns:
+                    nullable_value = nullable_value | result[column].isNull()
             invalid = result[marker].isNull() & ~nullable_value
             error = f.struct(
                 f.lit("INVALID_FOREIGN_KEY").alias("code"),
