@@ -57,7 +57,7 @@ enumerations, and quantity invariants before writing.
 Every accepted Bronze row includes:
 
 - `_ingested_at`: Databricks processing timestamp;
-- `_source_file`: Spark `input_file_name()` URI;
+- `_source_file`: Unity Catalog `_metadata.file_path` URI;
 - `_batch_id`: caller-supplied ID or generated UTC/UUID ID.
 
 `bronze._ingestion_files` records successfully processed source files. The quarantine table keeps
