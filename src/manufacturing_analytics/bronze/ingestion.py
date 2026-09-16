@@ -68,7 +68,7 @@ class BronzeIngestion:
         f = self.f
         source_glob = f"{self.config.source_path.rstrip('/')}/{contract.name}*.parquet"
         raw = self.spark.read.option("mergeSchema", "true").parquet(source_glob)
-        raw = raw.withColumn("_source_file", f.input_file_name())
+        raw = raw.withColumn("_source_file", f.col("_metadata.file_path"))
         processed = (
             self.spark.table(f"{self.bronze}._ingestion_files")
             .filter((f.col("table_name") == contract.name) & (f.col("status") == "SUCCESS"))
