@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
-from datetime import UTC, datetime
+from datetime import datetime, timezone
 from typing import Any
 from uuid import uuid4
 
@@ -21,7 +21,7 @@ class IngestionConfig:
     batch_id: str = ""
 
     def resolved_batch_id(self) -> str:
-        return self.batch_id or f"bronze-{datetime.now(UTC):%Y%m%dT%H%M%SZ}-{uuid4().hex[:8]}"
+        timestamp = datetime.now(timezone.utc)  # noqa: UP017 - Databricks uses Python 3.10.\n        return self.batch_id or f"bronze-{timestamp:%Y%m%dT%H%M%SZ}-{uuid4().hex[:8]}"
 
 
 class BronzeIngestion:
