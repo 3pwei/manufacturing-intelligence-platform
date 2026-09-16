@@ -21,7 +21,8 @@ class IngestionConfig:
     batch_id: str = ""
 
     def resolved_batch_id(self) -> str:
-        timestamp = datetime.now(timezone.utc)  # noqa: UP017 - Databricks uses Python 3.10.\n        return self.batch_id or f"bronze-{timestamp:%Y%m%dT%H%M%SZ}-{uuid4().hex[:8]}"
+        timestamp = datetime.now(timezone.utc)  # noqa: UP017 - Databricks uses Python 3.10.
+        return self.batch_id or f"bronze-{timestamp:%Y%m%dT%H%M%SZ}-{uuid4().hex[:8]}"
 
 
 class BronzeIngestion:

@@ -25,5 +25,9 @@ if __name__ == "__main__":
         "sql/transformations/010_silver_conformed.sql",
         "sql/metrics/020_gold_analytics.sql",
     ):
-        execute_sql_file(spark, repository_root / relative_path)  # noqa: F821
-
+        sql_path = repository_root / relative_path
+        if not sql_path.is_file():
+            raise FileNotFoundError(f"required Silver/Gold SQL asset not found: {sql_path}")
+        print(f"Executing Silver/Gold SQL asset: {relative_path}")
+        execute_sql_file(spark, sql_path)  # noqa: F821
+    print("Silver/Gold transformation completed successfully")
