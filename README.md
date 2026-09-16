@@ -96,10 +96,24 @@ change. Tableau must connect to `manufacturing_intelligence.gold`, not Bronze.
 Run `databricks/jobs/run_silver_gold.py` after a successful Bronze load. See
 `docs/silver-gold-model.md` for model purposes, metric ownership, validation, and limitations.
 
+## Deployment verification
+
+The production-like demo deployment order is:
+
+```text
+seed-42 demo Parquet → S3 → Bronze → Silver → Gold → Databricks SQL → Tableau-ready
+```
+
+Use `docs/deployment.md` for the exact generation, upload, bundle deployment, job execution,
+idempotency, validation, cost-control, and teardown commands. Tableau connects only to the five
+governed tables in `manufacturing_intelligence.gold`.
+
 ## Project status
 
 PR #1 establishes the foundation and contracts. PR #2 implements the deterministic synthetic
 manufacturing environment. PR #3 adds the Databricks Bronze, data-quality, quarantine, and
 file-level idempotency foundation. PR #4 adds conformed Silver and governed Gold analytics.
+PR #5–#10 harden Databricks Asset Bundle and serverless runtime compatibility. PR #11 verifies and
+documents the complete deployment path.
 
 See `docs/` for the design contracts that future implementation PRs must follow.

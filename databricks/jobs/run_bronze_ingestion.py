@@ -22,7 +22,7 @@ def parse_args() -> argparse.Namespace:
 
 if __name__ == "__main__":
     args = parse_args()
-    result = BronzeIngestion(
+    ingestion = BronzeIngestion(
         spark,  # noqa: F821 - injected by the Databricks runtime
         IngestionConfig(
             args.source_path,
@@ -31,5 +31,25 @@ if __name__ == "__main__":
             args.quarantine_schema,
             args.batch_id,
         ),
-    ).run()
-    print(json.dumps({"batch_id": args.batch_id or "generated", "tables": result}, indent=2))
+    )
+    print(
+        json.dumps(
+            {
+                "event": "bronze_ingestion_started",
+                "batch_id": ingestion.batch_id,
+                "source_path": args.source_path,
+                "catalog": args.catalog,
+            }
+        )
+    )
+    result = ingestion.run()
+    print(
+        json.dumps(
+            {
+                "event": "bronze_ingestion_completed",
+                "batch_id": ingestion.batch_id,
+                "tables": result,
+            },
+            indent=2,
+        )
+    )
