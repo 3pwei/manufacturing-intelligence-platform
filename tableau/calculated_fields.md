@@ -1,7 +1,7 @@
 # Tableau Calculated Fields — MVP
 
-Gold remains the source of truth. These fields only aggregate governed additive columns at the
-current Tableau filter grain. Create them in the named Tableau data source unless stated otherwise.
+Gold remains the source of truth. These fields aggregate governed additive columns at the current
+Tableau filter grain. Create them in the named Tableau data source unless stated otherwise.
 
 ## Manufacturing Daily
 
@@ -14,13 +14,6 @@ SUM([production_quantity])
 ### FPY
 
 ```tableau
-SUM([pass_quantity]) /
-NULLIF(SUM([pass_quantity]) + SUM([fail_quantity]), 0)
-```
-
-If the installed Tableau version does not support `NULLIF`, use:
-
-```tableau
 IF SUM([pass_quantity]) + SUM([fail_quantity]) = 0 THEN NULL
 ELSE SUM([pass_quantity]) /
      (SUM([pass_quantity]) + SUM([fail_quantity]))
@@ -30,25 +23,33 @@ END
 ### Defect Rate
 
 ```tableau
-SUM([fail_quantity]) / SUM([production_quantity])
+IF SUM([production_quantity]) = 0 THEN NULL
+ELSE SUM([fail_quantity]) / SUM([production_quantity])
+END
 ```
 
 ### DPPM
 
 ```tableau
-SUM([fail_quantity]) * 1000000.0 / SUM([production_quantity])
+IF SUM([production_quantity]) = 0 THEN NULL
+ELSE SUM([fail_quantity]) * 1000000.0 / SUM([production_quantity])
+END
 ```
 
 ### Rework Rate
 
 ```tableau
-SUM([rework_quantity]) / SUM([production_quantity])
+IF SUM([production_quantity]) = 0 THEN NULL
+ELSE SUM([rework_quantity]) / SUM([production_quantity])
+END
 ```
 
 ### Scrap Rate
 
 ```tableau
-SUM([scrap_quantity]) / SUM([production_quantity])
+IF SUM([production_quantity]) = 0 THEN NULL
+ELSE SUM([scrap_quantity]) / SUM([production_quantity])
+END
 ```
 
 ### Yield Loss
@@ -73,15 +74,19 @@ daily repeated weekly value.
 ### Product FPY
 
 ```tableau
-SUM([pass_quantity]) /
-(SUM([pass_quantity]) + SUM([fail_quantity]))
+IF SUM([pass_quantity]) + SUM([fail_quantity]) = 0 THEN NULL
+ELSE SUM([pass_quantity]) /
+     (SUM([pass_quantity]) + SUM([fail_quantity]))
+END
 ```
 
 ### Product Mix Share
 
 ```tableau
-SUM([production_quantity]) /
-WINDOW_SUM(SUM([production_quantity]))
+IF WINDOW_SUM(SUM([production_quantity])) = 0 THEN NULL
+ELSE SUM([production_quantity]) /
+     WINDOW_SUM(SUM([production_quantity]))
+END
 ```
 
 Set **Compute Using** to Product within each displayed period/factory. The Gold
@@ -93,7 +98,9 @@ calculation above is required when dates are rolled up to month or an arbitrary 
 ### Supplier-attributed Defect Rate
 
 ```tableau
-SUM([defective_units]) / SUM([inspected_units])
+IF SUM([inspected_units]) = 0 THEN NULL
+ELSE SUM([defective_units]) / SUM([inspected_units])
+END
 ```
 
 Tooltip caveat: inspected units are completed units from distinct production lots with a
@@ -104,8 +111,10 @@ supplier-attributed event; the source has no BOM/allocation fact.
 ### Defect Contribution
 
 ```tableau
-SUM([defect_quantity]) /
-WINDOW_SUM(SUM([defect_quantity]))
+IF WINDOW_SUM(SUM([defect_quantity])) = 0 THEN NULL
+ELSE SUM([defect_quantity]) /
+     WINDOW_SUM(SUM([defect_quantity]))
+END
 ```
 
 ### Cumulative Defect Contribution
