@@ -4,6 +4,17 @@ bundle:
 include:
   - databricks/jobs/*.yml
 
+artifacts:
+  default:
+    type: whl
+    path: .
+    build: python -m pip wheel . --no-deps --wheel-dir dist
+
+sync:
+  exclude:
+    - .venv/
+    - data/generated/
+
 targets:
   dev:
     mode: development
