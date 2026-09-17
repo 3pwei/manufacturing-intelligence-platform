@@ -125,20 +125,50 @@ symptom. Adding lot-level Gold evidence is a future model change, not a Tableau 
 4. Apply Date, Factory, and Product filters to all compatible data sources using related field
    names; add Line/Component/Supplier/Defect only where present.
 5. Configure filter actions instead of cross-grain joins.
-6. Run `sql/validation/040_tableau_mvp_validation.sql` and reconcile unfiltered KPIs, May/June
-   Mexico product mix, and incident slices.
-7. Save the sanitized workbook and capture the four required screenshots.
-8. Inspect the workbook/package for credentials before committing.
+6. Run `databricks bundle run -t dev tableau_mvp_validation`. The job prints one JSON
+   `tableau_mvp_validation` event per check and fails automatically if any status is `FAIL`.
+7. Confirm only the remaining visual behavior: filters/actions update the intended sheets and no
+   layout overlaps appear.
+8. Save the sanitized workbook and capture the four required screenshots.
+9. Inspect the workbook/package for credentials before committing.
 
-## Validation checklist
+## Automated acceptance
+
+Run after Gold is populated:
+
+```bash
+databricks bundle validate -t dev
+databricks bundle deploy -t dev
+databricks bundle run -t dev tableau_mvp_validation
+```
+
+The fail-closed job validates:
+
+- all five governed Gold tables and their seed-42 row counts;
+- stored Gold rates against additive numerator/denominator formulas;
+- Incident A supplier/power-module concentration;
+- Incident B Mexico Line 2 voltage concentration;
+- Incident C ramp-line improvement;
+- Incident D localized memory/component/supplier/defect symptom;
+- Incident E aggregate FPY decline, stable within-product FPY, and X100→X200 volume shift.
+
+A successful final event is:
+
+```json
+{"event":"tableau_mvp_validation_completed","status":"PASS","checks":14,"failures":0,"failed_checks":[]}
+```
+
+The exact check count is emitted by the job and may increase when checks are added. Do not treat
+this sample count as a separate contract.
+
+## Remaining visual checklist
 
 - all five Tableau data sources point to schema `gold`;
 - no Bronze or Silver object appears in Tableau data-source metadata;
-- unfiltered production, pass, fail, FPY, defect rate, DPPM, rework, and scrap match Databricks SQL;
 - Date, Factory, Product, and Line filters update expected sheets;
-- rates use aggregated numerators and denominators;
-- Incident A–E visual paths produce the expected directional evidence;
+- dashboard actions follow the documented drill path;
 - Incident E is described as product mix, not broad quality deterioration;
+- no text clipping, unreadably small labels, or container overlap;
 - workbook and Git history contain no token, password, personal path, or embedded credential.
 
 ## Tableau Public
