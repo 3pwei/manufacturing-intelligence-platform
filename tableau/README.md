@@ -64,6 +64,8 @@ validation, and Tableau Public publication. Calculated fields are defined in
 
 ## Validation
 
-Run `sql/validation/040_tableau_mvp_validation.sql` in Databricks SQL and compare its output with
-Tableau using the same filters. KPI values must be recomputed from additive numerators and
-denominators; never average row-level percentages.
+Run `databricks bundle run -t dev tableau_mvp_validation`. The serverless job executes
+`sql/validation/040_tableau_mvp_validation.sql`, prints machine-readable PASS/FAIL events, and
+fails closed when any check fails. Tableau manual validation is limited to filter/action behavior,
+layout, tooltips, and credential inspection. KPI values must still be recomputed from additive
+numerators and denominators; never average row-level percentages.
