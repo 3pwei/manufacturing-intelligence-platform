@@ -1,0 +1,18 @@
+resources:
+  jobs:
+    tableau_mvp_validation:
+      name: manufacturing-intelligence-tableau-mvp-validation
+      tasks:
+        - task_key: validate_tableau_mvp
+          spark_python_task:
+            python_file: ../jobs/run_tableau_mvp_validation.py
+            parameters:
+              - --repository-root
+              - ${workspace.file_path}
+          environment_key: serverless
+      environments:
+        - environment_key: serverless
+          spec:
+            client: "1"
+            dependencies:
+              - ../../dist/*.whl
