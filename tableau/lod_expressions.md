@@ -1,33 +1,61 @@
-# Tableau LOD Expression Plan
+# Tableau LOD Expressions — Advanced Analytics
 
-LOD expressions must answer real view-grain questions rather than exist only to demonstrate syntax.
+These expressions solve explicit business-grain problems. They are evaluated against the
+sanitized Gold extracts and must not be used to redefine Gold metrics.
 
 ## FIXED — Factory FPY Benchmark
 
-**Question:** While drilling into product, line, component, or defect, what is the selected factory's overall FPY benchmark?
-
-Conceptual calculation:
+**Question:** While viewing product or line marks, how does each mark compare with its factory's
+weighted FPY?
 
 ```tableau
-{ FIXED [Factory ID] : SUM([First Pass Pass Qty]) }
+{ FIXED [factory_id] : SUM([pass_quantity]) }
 /
-{ FIXED [Factory ID] : SUM([First Pass Pass Qty]) + SUM([Fail Qty]) }
+(
+  { FIXED [factory_id] : SUM([pass_quantity]) }
+  + { FIXED [factory_id] : SUM([fail_quantity]) }
+)
 ```
 
-Filter-order behavior must be tested and documented during workbook implementation.
+Overall and Product variants use the same additive formula at `{ FIXED : ... }` and
+`{ FIXED [product_id] : ... }`. Date, Factory, and Product filters used to define the comparison
+cohort must be context filters; ordinary dimension filters are applied after FIXED.
 
-## FIXED — Product Benchmark
+## INCLUDE — Component defect contribution
 
-**Question:** How does the selected line compare with the product's overall performance independent of line-level detail?
+**Question:** In a supplier or product summary, how much of the selected failure cohort is
+explained after adding component detail without permanently displaying Component?
 
-## INCLUDE — Component Contribution Context
+```tableau
+{ INCLUDE [component_id] : SUM([defect_quantity]) }
+/
+{ FIXED : SUM([defect_quantity]) }
+```
 
-**Question:** When presenting a higher-level product view, can component-level failures be incorporated to compute contribution without permanently exposing component as a view dimension?
+Use only with the Defect Pareto Gold extract. Apply analysis cohort filters as context filters and
+aggregate back to the displayed supplier/product grain.
 
-## EXCLUDE — Higher-level trend
+## EXCLUDE — Product reference while drilling to Line
 
-**Question:** When a detailed mark includes component or defect, what does the parent product/factory trend look like without that lower-level dimension?
+**Question:** When Line is added to a product view, what is the parent product FPY without the
+line split?
 
-## Validation
+```tableau
+{ EXCLUDE [line_id] : SUM([pass_quantity]) }
+/
+(
+  { EXCLUDE [line_id] : SUM([pass_quantity]) }
+  + { EXCLUDE [line_id] : SUM([fail_quantity]) }
+)
+```
 
-Every implemented LOD must be cross-checked against an equivalent governed SQL result for controlled test slices.
+This keeps Product and Factory dimensions already present in the view and removes only Line.
+
+## Validation rules
+
+- Recompute every rate from additive quantities; never average row-level percentages.
+- Test filter order explicitly: cohort filters are context filters for FIXED use cases.
+- Compare Factory/Product LOD results with grouped Gold additive totals.
+- Confirm INCLUDE totals aggregate back to the requested parent grain.
+- Confirm EXCLUDE Line repeats the same product reference across all displayed lines.
+
