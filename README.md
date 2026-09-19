@@ -114,6 +114,20 @@ PR #1 establishes the foundation and contracts. PR #2 implements the determinist
 manufacturing environment. PR #3 adds the Databricks Bronze, data-quality, quarantine, and
 file-level idempotency foundation. PR #4 adds conformed Silver and governed Gold analytics.
 PR #5–#10 harden Databricks Asset Bundle and serverless runtime compatibility. PR #11 verifies and
-documents the complete deployment path.
+documents the complete deployment path. PR #12 adds the Tableau manufacturing dashboard MVP and
+its automated Gold-layer acceptance checks.
+
+## Live Tableau dashboards
+
+The portfolio workbook is published with embedded extracts containing only deterministic
+synthetic manufacturing data:
+
+- [Manufacturing Executive Overview](https://public.tableau.com/app/profile/.60581246/viz/manufacturing_intelligence_public_sanitized/ExecutiveOverview)
+- [Manufacturing Quality](https://public.tableau.com/app/profile/.60581246/viz/manufacturing_intelligence_public_sanitized/ManufacturingQuality)
+- [Root Cause Analysis](https://public.tableau.com/app/profile/.60581246/viz/manufacturing_intelligence_public_sanitized/RootCauseAnalysis)
+
+The public workbook contains no production data, live Databricks connection, hostname, warehouse
+path, access token, or embedded credential. Each dashboard has a direct URL because Tableau Public
+may open only one view at a time when workbook tabs are hidden.
 
 See `docs/` for the design contracts that future implementation PRs must follow.
