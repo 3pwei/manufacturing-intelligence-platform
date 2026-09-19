@@ -1,6 +1,6 @@
+import xml.etree.ElementTree as etree
 from pathlib import Path
 from zipfile import ZipFile
-import xml.etree.ElementTree as etree
 
 
 WORKBOOK = Path(__file__).parents[1] / "tableau" / "manufacturing_intelligence_advanced_analytics.twbx"
