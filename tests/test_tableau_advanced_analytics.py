@@ -36,4 +36,23 @@ def test_parameters_lods_calculations_and_actions_exist() -> None:
     commands = [node.get("command") for node in actions.iter("command")]
     assert commands.count("tsc:tsl-filter") >= 2
     assert commands.count("tsc:brush") >= 1
-    assert len(actions.findall("nav-action")) >= 2
+    assert not actions.findall("nav-action")
+
+
+def test_calculated_columns_precede_column_instances() -> None:
+    tree = _tree()
+    for datasource in tree.findall("./datasources/datasource"):
+        children = list(datasource)
+        instance_indexes = [
+            index for index, child in enumerate(children) if child.tag == "column-instance"
+        ]
+        if not instance_indexes:
+            continue
+        first_instance = min(instance_indexes)
+        calculation_indexes = [
+            index
+            for index, child in enumerate(children)
+            if child.tag == "column" and child.get("name", "").startswith("[Calculation_PR13_")
+        ]
+        assert calculation_indexes
+        assert max(calculation_indexes) < first_instance

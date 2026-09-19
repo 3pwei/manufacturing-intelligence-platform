@@ -20,14 +20,15 @@ included.
 - Metric Selector switches FPY, Defect Rate, DPPM, Rework Rate, and Scrap Rate.
 - Benchmark Selector switches Overall, Factory, and Product FPY reference.
 - Selecting the FPY trend passes the active scope to Manufacturing Quality.
-- The navigation action opens Manufacturing Quality.
+- Use the workbook dashboard tabs to open Manufacturing Quality after the filter selection.
 
 ### Manufacturing Quality
 
 - Selected Metric, benchmark, variance, and status support comparison at Factory/Product/Line.
 - FIXED Factory/Product benchmarks prevent the lower-level marks from changing the reference.
 - EXCLUDE Line retains the parent Product reference during line drill-down.
-- Selecting Product Comparison passes the active scope to Root Cause Analysis and opens it.
+- Selecting Product Comparison passes the active scope to Root Cause Analysis; use the dashboard
+  tab to open the target dashboard.
 
 ### Root Cause Analysis
 
@@ -54,9 +55,7 @@ quantity. It does not average stored daily rates.
 | Type | Source | Target | Trigger |
 |---|---|---|---|
 | Filter | Executive `Trend - FPY` | Manufacturing Quality | Select |
-| Navigation | Executive `Trend - FPY` | Manufacturing Quality | Select |
 | Filter | Quality `Product Comparison` | Root Cause Analysis | Select |
-| Navigation | Quality `Product Comparison` | Root Cause Analysis | Select |
 | Highlight | RCA `Defect Pareto` | RCA contributor sheets | Hover |
 
 ## Validation notes
@@ -66,7 +65,7 @@ Automated package validation confirms:
 - the `.twbx` ZIP and both embedded synthetic Hyper extracts are intact;
 - exactly two list parameters exist with the required members;
 - FIXED, INCLUDE, and EXCLUDE formulas exist and use additive inputs;
-- filter, highlight, and navigation actions reference existing dashboards/sheets;
+- filter and highlight actions reference existing dashboards/sheets;
 - only the two sanitized Gold-derived extracts are packaged;
 - sensitive connection markers are absent.
 
@@ -76,10 +75,9 @@ Manual Tableau Desktop verification before publication:
    and accept the compatibility prompt only if shown.
 2. Exercise every parameter member and confirm mark values/formatting.
 3. Verify context-filter behavior for Factory/Product benchmarks.
-4. Follow both navigation actions and verify the selected scope is retained.
+4. Follow the dashboard tabs after each filter action and verify the selected scope is retained.
 5. Run Incident A–E paths; Incident E must be described as product mix.
 6. Capture refreshed screenshots after visual QA, then republish from the owner account.
 
 Publication remains a manual account action. Do not replace the current public workbook until all
 six checks pass.
-
