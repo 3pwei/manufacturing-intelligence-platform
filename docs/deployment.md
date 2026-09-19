@@ -90,6 +90,21 @@ Expected Gold counts are 1,798 manufacturing daily, 543 factory quality, 1,442 p
 8,045 supplier quality, and 8,649 defect Pareto rows. The clean demo is expected to have zero
 quarantined records.
 
+## 5. Run Tableau MVP automated acceptance
+
+After Gold is populated, deploy and run the fail-closed validation job:
+
+```bash
+databricks bundle validate -t dev
+databricks bundle deploy -t dev
+databricks bundle run -t dev tableau_mvp_validation
+```
+
+The job validates the five Gold tables, expected row counts, governed KPI arithmetic, and Incident
+A–E evidence. It prints JSON events for PR evidence and exits non-zero if any check fails. Tableau
+Desktop still requires a short visual check for filters, actions, layout, tooltips, and credential
+hygiene; manual SQL reconciliation is no longer required.
+
 ## Known limitations
 
 - Source objects are immutable after a successful file audit. Publish a new URI or perform a
