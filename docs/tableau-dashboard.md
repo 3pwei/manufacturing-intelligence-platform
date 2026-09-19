@@ -173,12 +173,24 @@ this sample count as a separate contract.
 
 ## Tableau Public
 
+The sanitized portfolio workbook is published as three directly addressable dashboards:
+
+- [Manufacturing Executive Overview](https://public.tableau.com/app/profile/.60581246/viz/manufacturing_intelligence_public_sanitized/ExecutiveOverview)
+- [Manufacturing Quality](https://public.tableau.com/app/profile/.60581246/viz/manufacturing_intelligence_public_sanitized/ManufacturingQuality)
+- [Root Cause Analysis](https://public.tableau.com/app/profile/.60581246/viz/manufacturing_intelligence_public_sanitized/RootCauseAnalysis)
+
+The views were verified in a signed-out browser. The published package uses embedded extracts of
+the deterministic synthetic Gold data and contains no live Databricks connection, hostname,
+warehouse path, token, or embedded credential. Direct links are listed separately because Tableau
+Public may display only the selected view when workbook tabs are hidden.
+
+For a future republish:
+
 1. Create a sanitized extract; Tableau Public cannot rely on a private live Databricks session.
 2. Remove unused fields and verify that only synthetic Gold data is included.
 3. Choose **Server → Tableau Public → Save to Tableau Public**.
-4. Open the published workbook in a signed-out browser.
+4. Open each direct dashboard URL in a signed-out browser.
 5. Recheck filters, tooltips, dashboard sizing, and all three dashboards.
-6. Add the public URL to this document only after publication.
 
 Publishing is a manual action because it requires the owner's Tableau Public account. Never publish
 a workbook with an embedded Databricks token.
