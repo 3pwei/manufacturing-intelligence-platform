@@ -62,6 +62,16 @@ Follow `docs/tableau-dashboard.md` for sheet layout, filters, formatting, Incide
 validation, and Tableau Public publication. Calculated fields are defined in
 `tableau/calculated_fields.md`.
 
+## Published portfolio views
+
+- [Manufacturing Executive Overview](https://public.tableau.com/app/profile/.60581246/viz/manufacturing_intelligence_public_sanitized/ExecutiveOverview)
+- [Manufacturing Quality](https://public.tableau.com/app/profile/.60581246/viz/manufacturing_intelligence_public_sanitized/ManufacturingQuality)
+- [Root Cause Analysis](https://public.tableau.com/app/profile/.60581246/viz/manufacturing_intelligence_public_sanitized/RootCauseAnalysis)
+
+These public views use sanitized embedded extracts containing only deterministic synthetic data.
+They do not use the private live Databricks connection described above and contain no hostname,
+warehouse path, access token, or embedded credential.
+
 ## Validation
 
 Run `databricks bundle run -t dev tableau_mvp_validation`. The serverless job executes
