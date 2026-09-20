@@ -147,6 +147,33 @@ def test_quality_comparisons_do_not_overlap() -> None:
         assert wrapper.get("w") == "28444"
 
 
+def test_line_comparison_uses_renderable_selected_metric_view() -> None:
+    tree = _tree()
+    worksheet = tree.find(
+        "./worksheets/worksheet[@name='Quality - Line Comparison']"
+    )
+    assert worksheet is not None
+    assert "[none:line_id:nk]" in (worksheet.findtext("./table/rows") or "")
+    assert "[usr:Calculation_PR13_Analysis_Value:qk]" in (
+        worksheet.findtext("./table/cols") or ""
+    )
+    active_view = "".join(
+        etree.tostring(node, encoding="unicode")
+        for node in (
+            worksheet.find("./table/rows"),
+            worksheet.find("./table/cols"),
+            worksheet.find("./table/panes"),
+        )
+        if node is not None
+    )
+    assert "Calculation_PR13_Exclude_Line" not in active_view
+    tooltip = worksheet.find(
+        "./table/panes/pane/customized-tooltip/formatted-text"
+    )
+    assert tooltip is not None
+    assert (tooltip.find("run").text or "").startswith("Line Id")
+
+
 def test_rca_contributor_axes_remain_renderable() -> None:
     tree = _tree()
     defect_quantity = "[sum:defect_quantity:qk]"
