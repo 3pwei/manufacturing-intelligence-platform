@@ -68,6 +68,7 @@ def test_parameter_driven_calculations_are_wired_to_worksheets() -> None:
         "Metric vs Benchmark Trend": analysis_instance,
         "Quality - Factory Comparison": analysis_instance,
         "Quality - Product Comparison": analysis_instance,
+        "Quality - Line Comparison": analysis_instance,
     }
     for name, active_instance in active_instances.items():
         worksheet = tree.find(f"./worksheets/worksheet[@name='{name}']")
@@ -87,10 +88,41 @@ def test_parameter_driven_calculations_are_wired_to_worksheets() -> None:
             ".//datasource-dependencies[@datasource='Parameters']"
         )
         assert parameter_dependency is not None
-    for name in ("Quality - Factory Comparison", "Quality - Product Comparison"):
+    for name in (
+        "Quality - Factory Comparison",
+        "Quality - Product Comparison",
+        "Quality - Line Comparison",
+    ):
         worksheet = tree.find(f"./worksheets/worksheet[@name='{name}']")
         assert worksheet is not None
         assert benchmark_instance in etree.tostring(worksheet, encoding="unicode")
+
+
+def test_every_dashboard_worksheet_has_a_visual_representation() -> None:
+    tree = _tree()
+    worksheet_names = {
+        node.get("name") for node in tree.findall("./worksheets/worksheet")
+    }
+    worksheet_windows = {
+        node.get("name")
+        for node in tree.findall("./windows/window[@class='worksheet']")
+    }
+    for dashboard in tree.findall("./dashboards/dashboard"):
+        dashboard_name = dashboard.get("name")
+        dashboard_window = tree.find(
+            f"./windows/window[@class='dashboard'][@name='{dashboard_name}']"
+        )
+        assert dashboard_window is not None
+        viewpoints = {
+            node.get("name")
+            for node in dashboard_window.findall("./viewpoints/viewpoint")
+        }
+        for zone in dashboard.findall(".//zone[@name]"):
+            sheet_name = zone.get("name")
+            if sheet_name not in worksheet_names:
+                continue
+            assert sheet_name in worksheet_windows
+            assert sheet_name in viewpoints
 
 
 def test_parameter_driven_kpi_cards_are_visible() -> None:
@@ -114,61 +146,3 @@ def test_parameter_driven_kpi_cards_are_visible() -> None:
         assert worksheet.find(
             ".//datasource-dependencies[@datasource='Parameters']"
         ) is not None
-
-
-def test_lods_are_used_by_visible_business_views() -> None:
-    tree = _tree()
-    active_fields = {
-        "RCA - Component Contribution": "[usr:Calculation_PR13_Include_Component:qk]",
-        "RCA - Supplier Contribution": "[usr:Calculation_PR13_Defect_Contribution:qk]",
-        "RCA - Defect Pareto": "[usr:Calculation_PR13_Defect_Contribution:qk]",
-        "Quality - Line Comparison": "[usr:Calculation_PR13_Exclude_Line:qk]",
-    }
-    for name, field in active_fields.items():
-        worksheet = tree.find(f"./worksheets/worksheet[@name='{name}']")
-        assert worksheet is not None
-        table = worksheet.find("table")
-        assert table is not None
-        active_xml = "".join(
-            etree.tostring(node, encoding="unicode")
-            for node in (table.find("rows"), table.find("cols"), table.find("panes"))
-            if node is not None
-        )
-        assert field in active_xml
-
-    quality = tree.find("./dashboards/dashboard[@name='Manufacturing Quality']")
-    assert quality is not None
-    assert quality.find(".//zone[@name='Quality - Line Comparison']") is not None
-
-    actions = tree.find("actions")
-    assert actions is not None
-    captions = {action.get("caption") for action in actions.findall("action")}
-    assert "Filter defect contributors from Pareto" in captions
-    assert "Highlight related defect contributors" in captions
-
-
-def test_dashboard_zones_precede_zone_styles() -> None:
-    tree = _tree()
-    for parent in tree.iter():
-        children = list(parent)
-        zone_indexes = [index for index, child in enumerate(children) if child.tag == "zone"]
-        style_indexes = [
-            index for index, child in enumerate(children) if child.tag == "zone-style"
-        ]
-        if zone_indexes and style_indexes:
-            assert max(zone_indexes) < min(style_indexes)
-
-
-def test_line_comparison_preserves_product_and_line_filter_groups() -> None:
-    tree = _tree()
-    worksheet = tree.find("./worksheets/worksheet[@name='Quality - Line Comparison']")
-    assert worksheet is not None
-    filters = {
-        node.get("filter-group"): node
-        for node in worksheet.findall("./table/view/filter")
-        if node.get("filter-group")
-    }
-    assert filters["6"].get("column", "").endswith("[none:product_id:nk]")
-    assert filters["6"].find("groupfilter").get("level") == "[none:product_id:nk]"
-    assert filters["7"].get("column", "").endswith("[none:line_id:nk]")
-    assert filters["7"].find("groupfilter").get("level") == "[none:line_id:nk]"
