@@ -265,17 +265,7 @@ def test_line_comparison_uses_renderable_selected_metric_view() -> None:
         )
         if node is not None
     )
-    exclude_instance = "[usr:Calculation_PR13_Exclude_Line:qk]"
-    assert exclude_instance in active_view
-    # Keep the known-good parameter-driven measure on the axis. EXCLUDE is a
-    # reference in Marks/Tooltip, so it cannot blank the primary bar chart.
-    assert exclude_instance not in (worksheet.findtext("./table/cols") or "")
-    assert exclude_instance not in (worksheet.findtext("./table/rows") or "")
-    assert worksheet.find(
-        f"./table/panes/pane/encodings/tooltip[@column='"
-        f"[{next(node.get('name') for node in tree.findall('./datasources/datasource') if node.get('caption', '').startswith('gold_manufacturing_daily'))}]."
-        f"{exclude_instance}']"
-    ) is not None
+    assert "Calculation_PR13_Exclude_Line" not in active_view
     tooltip = worksheet.find(
         "./table/panes/pane/customized-tooltip/formatted-text"
     )
@@ -293,52 +283,11 @@ def test_rca_contributor_axes_remain_renderable() -> None:
         "./worksheets/worksheet[@name='RCA - Supplier Contribution']"
     )
     assert component is not None and supplier is not None
-    defect_source = next(
-        node.get("name")
-        for node in tree.findall("./datasources/datasource")
-        if node.get("caption", "").startswith("gold_defect_pareto")
-    )
-    include_ref = (
-        f"[{defect_source}].[usr:Calculation_PR13_Include_Component:qk]"
-    )
-    assert component.findtext("./table/cols") == include_ref
-    assert component.find(
-        f"./table/panes/pane/encodings/text[@column='{include_ref}']"
-    ) is not None
+    assert defect_quantity in (component.findtext("./table/cols") or "")
     assert defect_quantity in (supplier.findtext("./table/cols") or "")
-    assert "Calculation_PR13" not in etree.tostring(
-        supplier, encoding="unicode"
-    )
-
-
-def test_include_and_exclude_lods_are_used_by_visible_worksheets() -> None:
-    tree = _tree()
-    expectations = {
-        "RCA - Component Contribution": (
-            "Calculation_PR13_Include_Component",
-            "{ INCLUDE [component_id] : SUM([defect_quantity]) }",
-        ),
-        "Quality - Line Comparison": (
-            "Calculation_PR13_Exclude_Line",
-            "{ EXCLUDE [line_id] : SUM([pass_quantity]) }",
-        ),
-    }
-    for worksheet_name, (calculation_name, formula_fragment) in expectations.items():
-        worksheet = tree.find(
-            f"./worksheets/worksheet[@name='{worksheet_name}']"
-        )
-        assert worksheet is not None
-        active_xml = etree.tostring(worksheet, encoding="unicode")
-        assert calculation_name in active_xml
-        calculation = worksheet.find(
-            f".//column[@name='[{calculation_name}]']/calculation"
-        )
-        assert calculation is not None
-        assert formula_fragment in calculation.get("formula", "")
-        assert any(
-            calculation_name in (node.get("column") or "")
-            for node in worksheet.findall("./table/panes/pane/encodings/*")
-        )
+    for worksheet in (component, supplier):
+        worksheet_xml = etree.tostring(worksheet, encoding="unicode")
+        assert "Calculation_PR13" not in worksheet_xml
 
 
 def test_rca_scope_filters_apply_to_every_view() -> None:
