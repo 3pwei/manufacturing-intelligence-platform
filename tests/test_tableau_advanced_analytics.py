@@ -396,7 +396,7 @@ def test_parameter_driven_kpi_cards_are_visible() -> None:
             "Selected Metric",
         ),
         "KPI - WoW FPY Change": (
-            "[usr:Calculation_PR13_Variance:qk]",
+            "[usr:Calculation_PR13_Variance_Display:nk]",
             "Variance vs Benchmark",
         ),
     }
@@ -409,3 +409,45 @@ def test_parameter_driven_kpi_cards_are_visible() -> None:
         assert worksheet.find(
             ".//datasource-dependencies[@datasource='Parameters']"
         ) is not None
+
+
+def test_all_metrics_have_selectable_benchmarks_and_nonblank_variance() -> None:
+    tree = _tree()
+    datasource = next(
+        node
+        for node in tree.findall("./datasources/datasource")
+        if node.get("caption", "").startswith("gold_manufacturing_daily")
+    )
+    for metric in ("FPY", "Defect_Rate", "DPPM", "Rework_Rate", "Scrap_Rate"):
+        for level in ("Overall", "Factory", "Product"):
+            field = datasource.find(
+                f"column[@name='[Calculation_PR13_{level}_{metric}]']"
+            )
+            assert field is not None
+            formula = field.find("calculation").get("formula")
+            assert "{ FIXED" in formula
+
+    selected = datasource.find(
+        "column[@name='[Calculation_PR13_Selected_Benchmark]']/calculation"
+    )
+    assert selected is not None
+    selected_formula = selected.get("formula")
+    for member in ("FPY", "Defect Rate", "DPPM", "Rework Rate", "Scrap Rate"):
+        assert f"WHEN '{member}'" in selected_formula
+    for level in ("Overall", "Factory", "Product"):
+        assert f"WHEN '{level}'" in selected_formula
+
+    variance = datasource.find(
+        "column[@name='[Calculation_PR13_Variance]']/calculation"
+    )
+    assert variance is not None
+    assert variance.get("formula") == (
+        "[Calculation_PR13_Selected_Metric] - "
+        "[Calculation_PR13_Selected_Benchmark]"
+    )
+    display = datasource.find(
+        "column[@name='[Calculation_PR13_Variance_Display]']/calculation"
+    )
+    assert display is not None
+    assert "DPPM" in display.get("formula")
+    assert " pp" in display.get("formula")

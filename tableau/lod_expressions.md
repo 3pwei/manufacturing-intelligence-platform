@@ -3,7 +3,7 @@
 These expressions solve explicit business-grain problems. They are evaluated against the
 sanitized Gold extracts and must not be used to redefine Gold metrics.
 
-## FIXED — Factory FPY Benchmark
+## FIXED — Metric-aware benchmark
 
 **Question:** While viewing product or line marks, how does each mark compare with its factory's
 weighted FPY?
@@ -18,8 +18,10 @@ weighted FPY?
 ```
 
 Overall and Product variants use the same additive formula at `{ FIXED : ... }` and
-`{ FIXED [product_id] : ... }`. Date, Factory, and Product filters used to define the comparison
-cohort must be context filters; ordinary dimension filters are applied after FIXED.
+`{ FIXED [product_id] : ... }`. Defect Rate, DPPM, Rework Rate, and Scrap Rate use the same
+Overall/Factory/Product levels with their governed additive numerator and production denominator.
+Date, Factory, and Product filters used to define the comparison cohort must be context filters;
+ordinary dimension filters are applied after FIXED.
 
 ## INCLUDE — Component defect contribution
 
@@ -58,12 +60,3 @@ This keeps Product and Factory dimensions already present in the view and remove
 - Compare Factory/Product LOD results with grouped Gold additive totals.
 - Confirm INCLUDE totals aggregate back to the requested parent grain.
 - Confirm EXCLUDE Line repeats the same product reference across all displayed lines.
-
-
-
-## Visible workbook usage
-
-- FIXED benchmarks are consumed by Metric vs Benchmark Trend and the Factory/Product comparisons.
-- INCLUDE Component Defect Contribution is the active measure in RCA - Component Contribution.
-- EXCLUDE Product Reference is displayed in Quality - Line Comparison for parent-product context during line drill-down.
-- Defect Contribution % is displayed in the Pareto and Supplier contribution views.

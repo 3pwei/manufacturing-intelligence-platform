@@ -18,7 +18,7 @@ included.
 ### Executive Overview
 
 - Metric Selector switches FPY, Defect Rate, DPPM, Rework Rate, and Scrap Rate.
-- Benchmark Selector switches Overall, Factory, and Product FPY reference.
+- Benchmark Selector switches Overall, Factory, and Product reference for the selected metric.
 - Selecting the FPY trend passes the active scope to Manufacturing Quality.
 - Use the workbook dashboard tabs to open Manufacturing Quality after the filter selection.
 
@@ -81,12 +81,3 @@ Manual Tableau Desktop verification before publication:
 
 Publication remains a manual account action. Do not replace the current public workbook until all
 six checks pass.
-
-
-## PR #13 visible investigation flow
-
-- Executive Overview: Selected Metric Trend and Variance vs Benchmark KPI.
-- Manufacturing Quality: Metric vs Benchmark Trend plus Factory, Product, and Line comparisons.
-- Quality - Line Comparison uses Product Reference (EXCLUDE Line) so a line can be compared with its parent-product reference.
-- Root Cause Analysis: Defect Pareto exposes Defect Contribution %, Component Contribution uses the INCLUDE LOD, and Supplier Contribution uses the governed defect denominator.
-- Selecting a Pareto defect filters contributor views; hovering highlights related marks.
