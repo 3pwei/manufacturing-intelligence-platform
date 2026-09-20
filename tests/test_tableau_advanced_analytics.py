@@ -161,6 +161,34 @@ def test_rca_contributor_axes_remain_renderable() -> None:
     assert defect_quantity in (supplier.findtext("./table/cols") or "")
     component_xml = etree.tostring(component, encoding="unicode")
     assert "[usr:Calculation_PR13_Include_Component:qk]" in component_xml
+    encodings = component.find("./table/panes/pane/encodings")
+    assert encodings is not None
+    assert not encodings.findall("detail")
+    assert any(
+        node.get("column") == "[federated.0b20rxn0otq97y11abtrt16jez9b].[usr:Calculation_PR13_Include_Component:qk]"
+        for node in encodings.findall("lod")
+    )
+
+
+def test_marks_encodings_use_tableau_supported_elements() -> None:
+    tree = _tree()
+    allowed = {
+        "color",
+        "size",
+        "text",
+        "shape",
+        "wedge-size",
+        "lod",
+        "geometry",
+        "image",
+        "tooltip",
+        "path",
+        "level",
+        "edge",
+        "custom",
+    }
+    for encodings in tree.findall(".//encodings"):
+        assert {node.tag for node in encodings} <= allowed
 
 
 def test_parameter_driven_kpi_cards_are_visible() -> None:
