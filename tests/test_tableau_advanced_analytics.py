@@ -156,6 +156,14 @@ def test_dashboard_controls_and_scroll_sensitive_charts_have_enough_height() -> 
         controls = dashboard.findall("./zones/zone[@type-v2='paramctrl']")
         assert len(controls) == 2
         assert all(int(control.get("h")) >= 6500 for control in controls)
+        for control in controls:
+            formats = {
+                node.get("attr"): node.get("value")
+                for node in control.findall("./zone-style/format")
+            }
+            assert formats.get("border-style") == "none"
+            assert formats.get("border-width") == "0"
+            assert "background-color" not in formats
 
     quality = tree.find("./dashboards/dashboard[@name='Manufacturing Quality']")
     assert quality is not None
