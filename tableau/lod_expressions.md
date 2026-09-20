@@ -59,3 +59,11 @@ This keeps Product and Factory dimensions already present in the view and remove
 - Confirm INCLUDE totals aggregate back to the requested parent grain.
 - Confirm EXCLUDE Line repeats the same product reference across all displayed lines.
 
+
+
+## Visible workbook usage
+
+- FIXED benchmarks are consumed by Metric vs Benchmark Trend and the Factory/Product comparisons.
+- INCLUDE Component Defect Contribution is the active measure in RCA - Component Contribution.
+- EXCLUDE Product Reference is displayed in Quality - Line Comparison for parent-product context during line drill-down.
+- Defect Contribution % is displayed in the Pareto and Supplier contribution views.
