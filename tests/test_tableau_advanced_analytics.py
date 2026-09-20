@@ -125,6 +125,44 @@ def test_every_dashboard_worksheet_has_a_visual_representation() -> None:
             assert sheet_name in viewpoints
 
 
+def test_quality_comparisons_do_not_overlap() -> None:
+    tree = _tree()
+    dashboard = tree.find("./dashboards/dashboard[@name='Manufacturing Quality']")
+    assert dashboard is not None
+    expected = {
+        "Quality - Factory Comparison": (667, 28444),
+        "Quality - Product Comparison": (29111, 28444),
+        "Quality - Line Comparison": (57555, 28445),
+    }
+    for name, (x, width) in expected.items():
+        zone = dashboard.find(f"./zones/zone/zone[@name='{name}']")
+        if zone is None:
+            zone = dashboard.find(f".//zone[@name='{name}']")
+        assert zone is not None
+        assert int(zone.get("x")) == x
+        assert int(zone.get("w")) == width
+    for zone_id in ("20", "21", "22"):
+        wrapper = dashboard.find(f".//zone[@id='{zone_id}']")
+        assert wrapper is not None
+        assert wrapper.get("w") == "28444"
+
+
+def test_rca_contributor_axes_remain_renderable() -> None:
+    tree = _tree()
+    defect_quantity = "[sum:defect_quantity:qk]"
+    component = tree.find(
+        "./worksheets/worksheet[@name='RCA - Component Contribution']"
+    )
+    supplier = tree.find(
+        "./worksheets/worksheet[@name='RCA - Supplier Contribution']"
+    )
+    assert component is not None and supplier is not None
+    assert defect_quantity in (component.findtext("./table/cols") or "")
+    assert defect_quantity in (supplier.findtext("./table/cols") or "")
+    component_xml = etree.tostring(component, encoding="unicode")
+    assert "[usr:Calculation_PR13_Include_Component:qk]" in component_xml
+
+
 def test_parameter_driven_kpi_cards_are_visible() -> None:
     tree = _tree()
     expectations = {
