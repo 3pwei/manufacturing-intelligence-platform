@@ -164,6 +164,83 @@ def test_rca_contributor_axes_remain_renderable() -> None:
         assert "Calculation_PR13" not in worksheet_xml
 
 
+def test_rca_scope_filters_apply_to_every_view() -> None:
+    tree = _tree()
+    defect_source = next(
+        datasource.get("name")
+        for datasource in tree.findall("./datasources/datasource")
+        if datasource.get("caption", "").startswith("gold_defect_pareto")
+    )
+    expected = {
+        "factory_id": "8",
+        "product_id": "9",
+        "line_id": "10",
+        "component_id": "11",
+        "supplier_id": "12",
+        "defect_name": "13",
+    }
+    for sheet_name in (
+        "RCA - Defect Trend",
+        "RCA - Defect Pareto",
+        "RCA - Component Contribution",
+        "RCA - Supplier Contribution",
+    ):
+        worksheet = tree.find(f"./worksheets/worksheet[@name='{sheet_name}']")
+        assert worksheet is not None
+        for field, group in expected.items():
+            ref = f"[{defect_source}].[none:{field}:nk]"
+            node = worksheet.find(f"./table/view/filter[@column='{ref}']")
+            assert node is not None
+            assert node.get("filter-group") == group
+
+    dashboard = tree.find("./dashboards/dashboard[@name='Root Cause Analysis']")
+    assert dashboard is not None
+    filter_params = {
+        node.get("param")
+        for node in dashboard.findall(".//zone[@type-v2='filter']")
+    }
+    for field in expected:
+        assert f"[{defect_source}].[none:{field}:nk]" in filter_params
+
+
+def test_every_dashboard_filter_applies_to_every_dashboard_worksheet() -> None:
+    tree = _tree()
+    worksheet_names = {
+        node.get("name") for node in tree.findall("./worksheets/worksheet")
+    }
+    for dashboard in tree.findall("./dashboards/dashboard"):
+        dashboard_sheets = {
+            zone.get("name")
+            for zone in dashboard.findall(".//zone[@name]")
+            if zone.get("name") in worksheet_names
+        }
+        controls = {
+            (zone.get("name"), zone.get("param"))
+            for zone in dashboard.findall(".//zone[@type-v2='filter']")
+        }
+        for owner_name, field_ref in controls:
+            owner = tree.find(
+                f"./worksheets/worksheet[@name='{owner_name}']"
+            )
+            assert owner is not None
+            owner_filter = owner.find(
+                f"./table/view/filter[@column='{field_ref}']"
+            )
+            assert owner_filter is not None
+            filter_group = owner_filter.get("filter-group")
+            assert filter_group is not None
+            for sheet_name in dashboard_sheets:
+                worksheet = tree.find(
+                    f"./worksheets/worksheet[@name='{sheet_name}']"
+                )
+                assert worksheet is not None
+                target_filter = worksheet.find(
+                    f"./table/view/filter[@filter-group='{filter_group}']"
+                )
+                assert target_filter is not None
+                assert target_filter.get("column") == field_ref
+
+
 def test_marks_encodings_use_tableau_supported_elements() -> None:
     tree = _tree()
     allowed = {
