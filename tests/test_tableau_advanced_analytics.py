@@ -150,12 +150,16 @@ def test_quality_comparisons_do_not_overlap() -> None:
 
 def test_dashboard_controls_and_scroll_sensitive_charts_have_enough_height() -> None:
     tree = _tree()
-    for dashboard_name in ("Executive Overview", "Manufacturing Quality"):
+    expected_parameter_heights = {
+        "Executive Overview": 6500,
+        "Manufacturing Quality": 5750,
+    }
+    for dashboard_name, expected_height in expected_parameter_heights.items():
         dashboard = tree.find(f"./dashboards/dashboard[@name='{dashboard_name}']")
         assert dashboard is not None
         controls = dashboard.findall("./zones/zone[@type-v2='paramctrl']")
         assert len(controls) == 2
-        assert all(int(control.get("h")) >= 6500 for control in controls)
+        assert all(int(control.get("h")) == expected_height for control in controls)
         for control in controls:
             formats = {
                 node.get("attr"): node.get("value")
@@ -207,7 +211,7 @@ def test_color_controls_are_positioned_beside_their_charts() -> None:
     quality = tree.find("./dashboards/dashboard[@name='Manufacturing Quality']")
     assert quality is not None
     expected_quality = {
-        "18": (30001, 34000),
+        "18": (36667, 34000),
         "34": (36667, 81833),
     }
     for zone_id, (x, y) in expected_quality.items():
@@ -226,6 +230,11 @@ def test_color_controls_are_positioned_beside_their_charts() -> None:
         86000,
         34000,
     )
+
+    volume = quality.find(".//zone[@name='Quality - Volume and Fail Trend']")
+    rework = quality.find(".//zone[@name='Quality - Rework and Scrap Trend']")
+    assert volume is not None and rework is not None
+    assert volume.get("w") == rework.get("w") == "36000"
 
     rca = tree.find("./dashboards/dashboard[@name='Root Cause Analysis']")
     assert rca is not None
