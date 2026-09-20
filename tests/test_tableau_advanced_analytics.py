@@ -114,3 +114,34 @@ def test_parameter_driven_kpi_cards_are_visible() -> None:
         assert worksheet.find(
             ".//datasource-dependencies[@datasource='Parameters']"
         ) is not None
+
+
+def test_lods_are_used_by_visible_business_views() -> None:
+    tree = _tree()
+    active_fields = {
+        "RCA - Component Contribution": "[usr:Calculation_PR13_Include_Component:qk]",
+        "RCA - Supplier Contribution": "[usr:Calculation_PR13_Defect_Contribution:qk]",
+        "RCA - Defect Pareto": "[usr:Calculation_PR13_Defect_Contribution:qk]",
+        "Quality - Line Comparison": "[usr:Calculation_PR13_Exclude_Line:qk]",
+    }
+    for name, field in active_fields.items():
+        worksheet = tree.find(f"./worksheets/worksheet[@name='{name}']")
+        assert worksheet is not None
+        table = worksheet.find("table")
+        assert table is not None
+        active_xml = "".join(
+            etree.tostring(node, encoding="unicode")
+            for node in (table.find("rows"), table.find("cols"), table.find("panes"))
+            if node is not None
+        )
+        assert field in active_xml
+
+    quality = tree.find("./dashboards/dashboard[@name='Manufacturing Quality']")
+    assert quality is not None
+    assert quality.find(".//zone[@name='Quality - Line Comparison']") is not None
+
+    actions = tree.find("actions")
+    assert actions is not None
+    captions = {action.get("caption") for action in actions.findall("action")}
+    assert "Filter defect contributors from Pareto" in captions
+    assert "Highlight related defect contributors" in captions
