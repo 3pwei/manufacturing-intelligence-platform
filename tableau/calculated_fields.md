@@ -1,134 +1,103 @@
-# Tableau Calculated Fields — MVP
+# Tableau Calculated Fields — Advanced Analytics
 
-Gold remains the source of truth. These fields aggregate governed additive columns at the current
-Tableau filter grain. Create them in the named Tableau data source unless stated otherwise.
+Gold remains the metric source of truth. Tableau calculations change presentation grain and
+interaction only; rates are always recomputed from additive numerators and denominators.
 
-## Manufacturing Daily
+## Parameters
 
-### Production Quantity
+### Metric Selector
+
+String list: `FPY`, `Defect Rate`, `DPPM`, `Rework Rate`, `Scrap Rate`. Default: `FPY`.
+
+### Benchmark Selector
+
+String list: `Overall`, `Factory`, `Product`. Default: `Factory`.
+
+The benchmark selector applies to the currently selected metric. Every metric has governed
+Overall, Factory, and Product FIXED references calculated from the same additive Gold quantities.
+
+## Selected Metric
 
 ```tableau
-SUM([production_quantity])
-```
-
-### FPY
-
-```tableau
-IF SUM([pass_quantity]) + SUM([fail_quantity]) = 0 THEN NULL
-ELSE SUM([pass_quantity]) /
-     (SUM([pass_quantity]) + SUM([fail_quantity]))
+CASE [Metric Selector]
+WHEN "FPY" THEN
+  SUM([pass_quantity]) / (SUM([pass_quantity]) + SUM([fail_quantity]))
+WHEN "Defect Rate" THEN SUM([fail_quantity]) / SUM([production_quantity])
+WHEN "DPPM" THEN SUM([fail_quantity]) * 1000000.0 / SUM([production_quantity])
+WHEN "Rework Rate" THEN SUM([rework_quantity]) / SUM([production_quantity])
+WHEN "Scrap Rate" THEN SUM([scrap_quantity]) / SUM([production_quantity])
 END
 ```
 
-### Defect Rate
+Null denominators remain null. DPPM is formatted as a whole number; every other option is a rate.
+
+## Selected Metric Benchmark
 
 ```tableau
-IF SUM([production_quantity]) = 0 THEN NULL
-ELSE SUM([fail_quantity]) / SUM([production_quantity])
+CASE [Metric Selector]
+WHEN "FPY" THEN
+  CASE [Benchmark Selector]
+  WHEN "Overall" THEN [Overall FPY Benchmark (FIXED)]
+  WHEN "Factory" THEN [Factory FPY Benchmark (FIXED)]
+  WHEN "Product" THEN [Product FPY Benchmark (FIXED)] END
+WHEN "Defect Rate" THEN
+  CASE [Benchmark Selector]
+  WHEN "Overall" THEN [Overall Defect Rate Benchmark (FIXED)]
+  WHEN "Factory" THEN [Factory Defect Rate Benchmark (FIXED)]
+  WHEN "Product" THEN [Product Defect Rate Benchmark (FIXED)] END
+// DPPM, Rework Rate, and Scrap Rate follow the same level selection.
 END
 ```
 
-### DPPM
+## Variance vs Benchmark
 
 ```tableau
-IF SUM([production_quantity]) = 0 THEN NULL
-ELSE SUM([fail_quantity]) * 1000000.0 / SUM([production_quantity])
+[Selected Metric] - [Selected Metric Benchmark]
+```
+
+FPY and rate variances display as percentage points; DPPM displays as a whole-number DPPM delta.
+For FPY, positive is favorable. For Defect Rate, DPPM, Rework Rate, and Scrap Rate, negative is
+favorable.
+
+## Favorable Variance
+
+```tableau
+IF [Metric Selector] = "FPY" THEN
+  [Variance vs Benchmark]
+ELSE
+  -[Variance vs Benchmark]
 END
 ```
 
-### Rework Rate
+Positive always means favorable, regardless of whether higher or lower values are desirable.
+
+## Yield Loss Contribution
 
 ```tableau
-IF SUM([production_quantity]) = 0 THEN NULL
-ELSE SUM([rework_quantity]) / SUM([production_quantity])
-END
+SUM([fail_quantity]) / { FIXED : SUM([production_quantity]) }
 ```
 
-### Scrap Rate
+This is the selected mark's failed-unit contribution to total inspected production in the FIXED
+filter context. It is not `1 - AVG([fpy])`.
+
+## Defect Contribution %
 
 ```tableau
-IF SUM([production_quantity]) = 0 THEN NULL
-ELSE SUM([scrap_quantity]) / SUM([production_quantity])
-END
+SUM([defect_quantity]) / { FIXED : SUM([defect_quantity]) }
 ```
 
-### Yield Loss
+Use on Defect Pareto and contributor views. Date/factory/product context filters define the
+analysis cohort before the FIXED denominator is evaluated.
 
-```tableau
-1 - [FPY]
-```
+## Metric Status
 
-### WoW FPY Change (percentage points)
+Status is based on Favorable Variance: non-negative = **Favorable**. DPPM within 5,000 of its
+benchmark and rates within 1 percentage point are **Watch**; larger unfavorable gaps are
+**Unfavorable**. These thresholds classify the view and do not replace canonical metric
+definitions.
 
-Use the governed weekly value and display it only at a week-compatible view grain.
+## Existing governed calculations
 
-```tableau
-AVG([wow_fpy_change])
-```
-
-Format as percentage with one or two decimals and label it **WoW FPY Change (pp)**. Do not sum the
-daily repeated weekly value.
-
-## Product Quality
-
-### Product FPY
-
-```tableau
-IF SUM([pass_quantity]) + SUM([fail_quantity]) = 0 THEN NULL
-ELSE SUM([pass_quantity]) /
-     (SUM([pass_quantity]) + SUM([fail_quantity]))
-END
-```
-
-### Product Mix Share
-
-```tableau
-IF WINDOW_SUM(SUM([production_quantity])) = 0 THEN NULL
-ELSE SUM([production_quantity]) /
-     WINDOW_SUM(SUM([production_quantity]))
-END
-```
-
-Set **Compute Using** to Product within each displayed period/factory. The Gold
-`product_mix_share` column is valid at its native daily factory-product grain, but the table
-calculation above is required when dates are rolled up to month or an arbitrary filtered range.
-
-## Supplier Quality
-
-### Supplier-attributed Defect Rate
-
-```tableau
-IF SUM([inspected_units]) = 0 THEN NULL
-ELSE SUM([defective_units]) / SUM([inspected_units])
-END
-```
-
-Tooltip caveat: inspected units are completed units from distinct production lots with a
-supplier-attributed event; the source has no BOM/allocation fact.
-
-## Defect Pareto
-
-### Defect Contribution
-
-```tableau
-IF WINDOW_SUM(SUM([defect_quantity])) = 0 THEN NULL
-ELSE SUM([defect_quantity]) /
-     WINDOW_SUM(SUM([defect_quantity]))
-END
-```
-
-### Cumulative Defect Contribution
-
-```tableau
-RUNNING_SUM([Defect Contribution])
-```
-
-Sort Defect descending by `SUM([defect_quantity])` and compute along Defect.
-
-## Formatting rules
-
-- FPY, Defect Rate, Rework Rate, Scrap Rate, Mix Share: percentage.
-- WoW FPY Change: percentage points, not percent change.
-- DPPM and quantities: whole numbers with separators.
-- Null denominators remain null; do not convert them to zero.
-- Do not add FIXED / INCLUDE / EXCLUDE LOD expressions in PR #12. Those belong to PR #13.
+The PR #12 calculations remain unchanged: weighted FPY, Defect Rate, DPPM, Rework Rate, Scrap
+Rate, Product Mix Share, supplier-attributed Defect Rate, Defect Contribution, and cumulative
+Pareto contribution. See `docs/metrics-definition.md` for their contracts.

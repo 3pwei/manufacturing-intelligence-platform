@@ -1,0 +1,52 @@
+name: Tableau Public validation
+
+on:
+  workflow_dispatch:
+    inputs:
+      executive_url:
+        description: Published Executive Overview URL
+        required: true
+        type: string
+      quality_url:
+        description: Published Manufacturing Quality URL
+        required: true
+        type: string
+      rca_url:
+        description: Published Root Cause Analysis URL
+        required: true
+        type: string
+
+permissions:
+  contents: read
+
+jobs:
+  public-smoke-test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Install browser validator
+        run: |
+          python -m pip install "playwright>=1.50,<2"
+          python -m playwright install --with-deps chromium
+      - name: Validate published dashboards
+        env:
+          TABLEAU_EXECUTIVE_URL: ${{ inputs.executive_url }}
+          TABLEAU_QUALITY_URL: ${{ inputs.quality_url }}
+          TABLEAU_RCA_URL: ${{ inputs.rca_url }}
+        run: |
+          python scripts/validate_tableau_public.py \
+            --executive-url "$TABLEAU_EXECUTIVE_URL" \
+            --quality-url "$TABLEAU_QUALITY_URL" \
+            --rca-url "$TABLEAU_RCA_URL"
+      - name: Upload validation evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: tableau-public-validation
+          path: artifacts/tableau-public
+          if-no-files-found: warn
+          retention-days: 14
