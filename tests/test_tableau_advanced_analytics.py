@@ -56,3 +56,36 @@ def test_calculated_columns_precede_column_instances() -> None:
         ]
         assert calculation_indexes
         assert max(calculation_indexes) < first_instance
+
+
+def test_parameter_driven_calculations_are_wired_to_worksheets() -> None:
+    tree = _tree()
+    metric_instance = "[usr:Calculation_PR13_Selected_Metric:qk]"
+    benchmark_instance = "[usr:Calculation_PR13_Selected_Benchmark:qk]"
+    for name in (
+        "Trend - FPY",
+        "Quality - FPY Trend",
+        "Quality - Factory Comparison",
+        "Quality - Product Comparison",
+    ):
+        worksheet = tree.find(f"./worksheets/worksheet[@name='{name}']")
+        assert worksheet is not None
+        xml = etree.tostring(worksheet, encoding="unicode")
+        assert metric_instance in xml
+        table = worksheet.find("table")
+        assert table is not None
+        active_view_xml = "".join(
+            etree.tostring(node, encoding="unicode")
+            for node in (table.find("rows"), table.find("cols"), table.find("panes"))
+            if node is not None
+        )
+        assert metric_instance in active_view_xml
+        assert "[usr:Calculation_0659753060524032:qk]" not in active_view_xml
+        parameter_dependency = worksheet.find(
+            ".//datasource-dependencies[@datasource='Parameters']"
+        )
+        assert parameter_dependency is not None
+    for name in ("Quality - Factory Comparison", "Quality - Product Comparison"):
+        worksheet = tree.find(f"./worksheets/worksheet[@name='{name}']")
+        assert worksheet is not None
+        assert benchmark_instance in etree.tostring(worksheet, encoding="unicode")
