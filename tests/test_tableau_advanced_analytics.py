@@ -176,6 +176,30 @@ def test_dashboard_controls_and_scroll_sensitive_charts_have_enough_height() -> 
     assert supplier is not None and supplier.get("h") == "34436"
 
 
+def test_right_side_color_controls_follow_filters_and_parameters() -> None:
+    tree = _tree()
+    for dashboard in tree.findall("./dashboards/dashboard"):
+        # Check the default dashboard zones; device-layout copies reuse the
+        # same ids and are updated by the generator at the same time.
+        zones = dashboard.find("./zones")
+        assert zones is not None
+        controls = list(zones.iter("zone"))
+        colors = [node for node in controls if node.get("type-v2") == "color"]
+        if not colors:
+            continue
+        preceding = [
+            node
+            for node in controls
+            if node.get("type-v2") in {"filter", "paramctrl"}
+        ]
+        assert preceding
+        last_preceding_bottom = max(
+            int(node.get("y")) + int(node.get("h")) for node in preceding
+        )
+        first_color_y = min(int(node.get("y")) for node in colors)
+        assert first_color_y >= last_preceding_bottom
+
+
 def test_line_comparison_uses_renderable_selected_metric_view() -> None:
     tree = _tree()
     worksheet = tree.find(
