@@ -62,12 +62,14 @@ def test_parameter_driven_calculations_are_wired_to_worksheets() -> None:
     tree = _tree()
     metric_instance = "[usr:Calculation_PR13_Selected_Metric:qk]"
     benchmark_instance = "[usr:Calculation_PR13_Selected_Benchmark:qk]"
-    for name in (
-        "Trend - FPY",
-        "Quality - FPY Trend",
-        "Quality - Factory Comparison",
-        "Quality - Product Comparison",
-    ):
+    analysis_instance = "[usr:Calculation_PR13_Analysis_Value:qk]"
+    active_instances = {
+        "Trend - FPY": metric_instance,
+        "Quality - FPY Trend": metric_instance,
+        "Quality - Factory Comparison": analysis_instance,
+        "Quality - Product Comparison": analysis_instance,
+    }
+    for name, active_instance in active_instances.items():
         worksheet = tree.find(f"./worksheets/worksheet[@name='{name}']")
         assert worksheet is not None
         xml = etree.tostring(worksheet, encoding="unicode")
@@ -79,7 +81,7 @@ def test_parameter_driven_calculations_are_wired_to_worksheets() -> None:
             for node in (table.find("rows"), table.find("cols"), table.find("panes"))
             if node is not None
         )
-        assert metric_instance in active_view_xml
+        assert active_instance in active_view_xml
         assert "[usr:Calculation_0659753060524032:qk]" not in active_view_xml
         parameter_dependency = worksheet.find(
             ".//datasource-dependencies[@datasource='Parameters']"
@@ -89,3 +91,26 @@ def test_parameter_driven_calculations_are_wired_to_worksheets() -> None:
         worksheet = tree.find(f"./worksheets/worksheet[@name='{name}']")
         assert worksheet is not None
         assert benchmark_instance in etree.tostring(worksheet, encoding="unicode")
+
+
+def test_parameter_driven_kpi_cards_are_visible() -> None:
+    tree = _tree()
+    expectations = {
+        "KPI - FPY": (
+            "[usr:Calculation_PR13_Selected_Metric:qk]",
+            "Selected Metric",
+        ),
+        "KPI - WoW FPY Change": (
+            "[usr:Calculation_PR13_Variance:qk]",
+            "Variance vs Benchmark",
+        ),
+    }
+    for name, (instance, label) in expectations.items():
+        worksheet = tree.find(f"./worksheets/worksheet[@name='{name}']")
+        assert worksheet is not None
+        xml = etree.tostring(worksheet, encoding="unicode")
+        assert instance in xml
+        assert label in xml
+        assert worksheet.find(
+            ".//datasource-dependencies[@datasource='Parameters']"
+        ) is not None
