@@ -69,15 +69,16 @@ Automated package validation confirms:
 - only the two sanitized Gold-derived extracts are packaged;
 - sensitive connection markers are absent.
 
-Manual Tableau Desktop verification before publication:
+Automated verification:
 
-1. Open `tableau/manufacturing_intelligence_advanced_analytics.twbx` in Tableau Desktop 2024.2+
-   and accept the compatibility prompt only if shown.
-2. Exercise every parameter member and confirm mark values/formatting.
-3. Verify context-filter behavior for Factory/Product benchmarks.
-4. Follow the dashboard tabs after each filter action and verify the selected scope is retained.
-5. Run Incident A–E paths; Incident E must be described as product mix.
-6. Capture refreshed screenshots after visual QA, then republish from the owner account.
+- `pytest` validates the packaged TWBX, all parameter/benchmark branches, LOD and calculated-field
+  contracts, dashboard actions, Apply to Worksheets scope, dashboard references, sanitized extract
+  boundary, and known layout regression constraints.
+- The Databricks Tableau validation job validates Gold contracts and Incident A–E, including all
+  three independent Incident E conditions required to identify a product-mix effect.
+- After publication, manually dispatch `.github/workflows/tableau-public-validation.yml` with the
+  three published dashboard URLs. The workflow checks rendering/error states and saves screenshots
+  plus a JSON report.
 
-Publication remains a manual account action. Do not replace the current public workbook until all
-six checks pass.
+The only manual acceptance steps are opening the TWBX once in Tableau Desktop without warnings,
+publishing from the owner account, and reviewing the generated screenshots for final visual quality.

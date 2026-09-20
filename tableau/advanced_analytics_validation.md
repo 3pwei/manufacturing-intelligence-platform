@@ -18,8 +18,37 @@ The package contains only:
 
 It contains no live Databricks metadata or credentials.
 
-## Visual sign-off
+## Automated validation layers
 
-Tableau Desktop visual/interaction sign-off and replacement of the three Tableau Public views are
-required after PR review. This file deliberately does not claim that automated XML inspection can
-replace Desktop rendering and interaction testing.
+### Pull request / CI
+
+Run `pytest`. The workbook contract tests inspect the packaged TWBX and fail on broken XML,
+missing parameter members, incorrect metric/benchmark wiring, invalid dashboard worksheet
+references, incomplete Apply to Worksheets scope, unsafe connections, unsupported mark encodings,
+and the layout regressions already found during PR #13 review.
+
+The existing Databricks Tableau validation job remains responsible for Gold data contracts and
+Incident A–E assertions. Incident E separately asserts declining aggregate FPY, approximately
+stable product-level FPY, and a product-mix shift.
+
+### After Tableau Public publication
+
+Run the GitHub Actions workflow **Tableau Public validation** and provide the published URLs for
+the three dashboards. It opens every view in Chromium, rejects Tableau error pages and missing
+render surfaces, exercises two Metric/Benchmark URL-parameter scenarios, and uploads screenshots
+plus `report.json` as a 14-day workflow artifact.
+
+This workflow is deliberately manual-dispatch because publishing is an owner-account action and a
+pull request cannot know the final published revision URL.
+
+## Remaining manual sign-off
+
+Only these steps remain manual:
+
+1. Open the TWBX once in Tableau Desktop and confirm there is no warning or automatic sheet removal.
+2. Publish/replace the Tableau Public workbook from the owner account.
+3. Review the uploaded browser screenshots for final spacing, clipping, scrollbars, color legends,
+   and readability.
+
+Clicks and dropdown changes no longer need to be exhaustively repeated by hand: their workbook
+wiring is checked in CI, while the published-render smoke test checks that the resulting views load.
