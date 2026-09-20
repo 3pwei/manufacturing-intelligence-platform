@@ -130,9 +130,9 @@ def test_quality_comparisons_do_not_overlap() -> None:
     dashboard = tree.find("./dashboards/dashboard[@name='Manufacturing Quality']")
     assert dashboard is not None
     expected = {
-        "Quality - Factory Comparison": (667, 28444),
-        "Quality - Product Comparison": (29111, 28444),
-        "Quality - Line Comparison": (57555, 28445),
+        "Quality - Factory Comparison": (667, 32888),
+        "Quality - Product Comparison": (33555, 32889),
+        "Quality - Line Comparison": (66444, 32889),
     }
     for name, (x, width) in expected.items():
         zone = dashboard.find(f"./zones/zone/zone[@name='{name}']")
@@ -144,7 +144,28 @@ def test_quality_comparisons_do_not_overlap() -> None:
     for zone_id in ("20", "21", "22"):
         wrapper = dashboard.find(f".//zone[@id='{zone_id}']")
         assert wrapper is not None
-        assert wrapper.get("w") == "28444"
+        assert wrapper.get("w") == "32888"
+        assert wrapper.get("h") == "23500"
+
+
+def test_dashboard_controls_and_scroll_sensitive_charts_have_enough_height() -> None:
+    tree = _tree()
+    for dashboard_name in ("Executive Overview", "Manufacturing Quality"):
+        dashboard = tree.find(f"./dashboards/dashboard[@name='{dashboard_name}']")
+        assert dashboard is not None
+        controls = dashboard.findall("./zones/zone[@type-v2='paramctrl']")
+        assert len(controls) == 2
+        assert all(int(control.get("h")) >= 6500 for control in controls)
+
+    quality = tree.find("./dashboards/dashboard[@name='Manufacturing Quality']")
+    assert quality is not None
+    line = quality.find(".//zone[@name='Quality - Line Comparison']")
+    assert line is not None and line.get("h") == "23500"
+
+    rca = tree.find("./dashboards/dashboard[@name='Root Cause Analysis']")
+    assert rca is not None
+    supplier = rca.find(".//zone[@name='RCA - Supplier Contribution']")
+    assert supplier is not None and supplier.get("h") == "34436"
 
 
 def test_line_comparison_uses_renderable_selected_metric_view() -> None:
