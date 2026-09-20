@@ -37,6 +37,9 @@ explained after adding component detail without permanently displaying Component
 Use only with the Defect Pareto Gold extract. Apply analysis cohort filters as context filters and
 aggregate back to the displayed supplier/product grain.
 
+**Visible use:** `RCA - Component Contribution` uses this LOD on Columns and mark labels. The
+component bars therefore show contribution share rather than raw defect quantity.
+
 ## EXCLUDE — Product reference while drilling to Line
 
 **Question:** When Line is added to a product view, what is the parent product FPY without the
@@ -53,6 +56,11 @@ line split?
 
 This keeps Product and Factory dimensions already present in the view and removes only Line.
 
+**Visible use:** `Quality - Line Comparison` keeps the parameter-driven Analysis Value on its
+rendered axis and places this EXCLUDE result in Marks/Tooltip as **Product Reference (EXCLUDE
+Line)**. Keeping the LOD off the primary axis preserves the known-good bar rendering while making
+the parent Product FPY available during line investigation.
+
 ## Validation rules
 
 - Recompute every rate from additive quantities; never average row-level percentages.
@@ -60,3 +68,5 @@ This keeps Product and Factory dimensions already present in the view and remove
 - Compare Factory/Product LOD results with grouped Gold additive totals.
 - Confirm INCLUDE totals aggregate back to the requested parent grain.
 - Confirm EXCLUDE Line repeats the same product reference across all displayed lines.
+- CI reads both sanitized Hyper extracts and checks component contribution totals and weighted
+  Product FPY inputs independently of the workbook XML.
