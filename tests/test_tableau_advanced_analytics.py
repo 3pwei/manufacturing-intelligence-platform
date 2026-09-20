@@ -145,3 +145,15 @@ def test_lods_are_used_by_visible_business_views() -> None:
     captions = {action.get("caption") for action in actions.findall("action")}
     assert "Filter defect contributors from Pareto" in captions
     assert "Highlight related defect contributors" in captions
+
+
+def test_dashboard_zones_precede_zone_styles() -> None:
+    tree = _tree()
+    for parent in tree.iter():
+        children = list(parent)
+        zone_indexes = [index for index, child in enumerate(children) if child.tag == "zone"]
+        style_indexes = [
+            index for index, child in enumerate(children) if child.tag == "zone-style"
+        ]
+        if zone_indexes and style_indexes:
+            assert max(zone_indexes) < min(style_indexes)
