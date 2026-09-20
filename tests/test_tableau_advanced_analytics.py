@@ -198,6 +198,8 @@ def test_right_side_color_controls_follow_filters_and_parameters() -> None:
         )
         first_color_y = min(int(node.get("y")) for node in colors)
         assert first_color_y >= last_preceding_bottom
+        top_level_colors = dashboard.findall("./zones/zone[@type-v2='color']")
+        assert len(top_level_colors) == len(colors)
 
 
 def test_line_comparison_uses_renderable_selected_metric_view() -> None:
