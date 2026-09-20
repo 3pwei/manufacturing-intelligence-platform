@@ -64,8 +64,8 @@ def test_parameter_driven_calculations_are_wired_to_worksheets() -> None:
     benchmark_instance = "[usr:Calculation_PR13_Selected_Benchmark:qk]"
     analysis_instance = "[usr:Calculation_PR13_Analysis_Value:qk]"
     active_instances = {
-        "Trend - FPY": metric_instance,
-        "Quality - FPY Trend": analysis_instance,
+        "Selected Metric Trend": metric_instance,
+        "Metric vs Benchmark Trend": analysis_instance,
         "Quality - Factory Comparison": analysis_instance,
         "Quality - Product Comparison": analysis_instance,
     }
