@@ -81,3 +81,12 @@ Manual Tableau Desktop verification before publication:
 
 Publication remains a manual account action. Do not replace the current public workbook until all
 six checks pass.
+
+
+## PR #13 visible investigation flow
+
+- Executive Overview: Selected Metric Trend and Variance vs Benchmark KPI.
+- Manufacturing Quality: Metric vs Benchmark Trend plus Factory, Product, and Line comparisons.
+- Quality - Line Comparison uses Product Reference (EXCLUDE Line) so a line can be compared with its parent-product reference.
+- Root Cause Analysis: Defect Pareto exposes Defect Contribution %, Component Contribution uses the INCLUDE LOD, and Supplier Contribution uses the governed defect denominator.
+- Selecting a Pareto defect filters contributor views; hovering highlights related marks.
