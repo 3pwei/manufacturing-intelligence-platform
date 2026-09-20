@@ -202,6 +202,29 @@ def test_right_side_color_controls_follow_filters_and_parameters() -> None:
         assert len(top_level_colors) == len(colors)
 
 
+def test_color_controls_are_positioned_beside_their_charts() -> None:
+    tree = _tree()
+    quality = tree.find("./dashboards/dashboard[@name='Manufacturing Quality']")
+    assert quality is not None
+    expected_quality = {
+        "18": (30001, 34000),
+        "34": (36667, 81833),
+    }
+    for zone_id, (x, y) in expected_quality.items():
+        color = quality.find(f"./zones/zone[@id='{zone_id}']")
+        assert color is not None and color.get("type-v2") == "color"
+        assert (int(color.get("x")), int(color.get("y"))) == (x, y)
+
+    rca = tree.find("./dashboards/dashboard[@name='Root Cause Analysis']")
+    assert rca is not None
+    defect_color = rca.find("./zones/zone[@id='15']")
+    assert defect_color is not None and defect_color.get("type-v2") == "color"
+    assert (int(defect_color.get("x")), int(defect_color.get("y"))) == (
+        86000,
+        71464,
+    )
+
+
 def test_line_comparison_uses_renderable_selected_metric_view() -> None:
     tree = _tree()
     worksheet = tree.find(
