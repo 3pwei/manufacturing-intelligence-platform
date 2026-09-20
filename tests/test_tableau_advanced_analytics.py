@@ -215,6 +215,18 @@ def test_color_controls_are_positioned_beside_their_charts() -> None:
         assert color is not None and color.get("type-v2") == "color"
         assert (int(color.get("x")), int(color.get("y"))) == (x, y)
 
+    rework_colors = [
+        node
+        for node in quality.findall("./zones/zone[@type-v2='color']")
+        if node.get("name") == "Quality - Rework and Scrap Trend"
+    ]
+    assert len(rework_colors) == 1
+    rework_color = rework_colors[0]
+    assert (int(rework_color.get("x")), int(rework_color.get("y"))) == (
+        86000,
+        34000,
+    )
+
     rca = tree.find("./dashboards/dashboard[@name='Root Cause Analysis']")
     assert rca is not None
     defect_color = rca.find("./zones/zone[@id='15']")
