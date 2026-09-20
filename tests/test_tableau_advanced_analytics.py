@@ -157,3 +157,18 @@ def test_dashboard_zones_precede_zone_styles() -> None:
         ]
         if zone_indexes and style_indexes:
             assert max(zone_indexes) < min(style_indexes)
+
+
+def test_line_comparison_preserves_product_and_line_filter_groups() -> None:
+    tree = _tree()
+    worksheet = tree.find("./worksheets/worksheet[@name='Quality - Line Comparison']")
+    assert worksheet is not None
+    filters = {
+        node.get("filter-group"): node
+        for node in worksheet.findall("./table/view/filter")
+        if node.get("filter-group")
+    }
+    assert filters["6"].get("column", "").endswith("[none:product_id:nk]")
+    assert filters["6"].find("groupfilter").get("level") == "[none:product_id:nk]"
+    assert filters["7"].get("column", "").endswith("[none:line_id:nk]")
+    assert filters["7"].find("groupfilter").get("level") == "[none:line_id:nk]"
